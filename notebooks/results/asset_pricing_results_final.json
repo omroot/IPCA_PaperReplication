@@ -1,0 +1,19 @@
+{
+  "K": 4,
+  "n_characteristics": 94,
+  "n_total_obs": 2413371,
+  "n_incumbent": 2178409,
+  "n_new_listings": 234962,
+  "filters": [
+    "NYSE/AMEX/NASDAQ",
+    "EQTY",
+    "NS shares",
+    "excl financials",
+    "price >= $1"
+  ],
+  "lagged_chars": true,
+  "is_total_r2": 0.18279784933909538,
+  "is_pred_r2": 0.011562042821267271,
+  "oos_total_r2": 0.1410900023023639,
+  "oos_pred_r2": 0.00030798780934993
+}
