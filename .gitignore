@@ -89,7 +89,9 @@ $RECYCLE.BIN/
 *.msp
 *.lnk
 
-# Data files (large or sensitive)
+# Data files (large, downloaded via data_loader.py)
+data/*.csv
+data/*.parquet
 *.csv.bak
 *.parquet.bak
 *.h5

@@ -1,6 +1,6 @@
 # IPCA Paper Replication
 
-Replication and extension of the paper **"Instrumented Principal Component Analysis"** by Kelly, Pruitt, and Su (2020), published in the *Journal of Financial Economics*.
+Replication of the paper **"Instrumented Principal Component Analysis"** by Kelly, Pruitt, and Su (2019), published in the *Journal of Financial Economics*.
 
 ## Author
 
@@ -8,53 +8,43 @@ Replication and extension of the paper **"Instrumented Principal Component Analy
 
 ## Overview
 
-This project implements the Instrumented Principal Component Analysis (IPCA) methodology for asset pricing applications. IPCA addresses a fundamental problem in asset pricing by using observable firm characteristics as instruments for time-varying factor loadings, allowing the model to explain cross-sectional return variation more effectively than traditional factor models.
+This project implements the Instrumented Principal Component Analysis (IPCA) methodology using Alternating Least Squares (ALS) for estimation. IPCA uses observable firm characteristics as instruments for time-varying factor loadings, explaining cross-sectional return variation more effectively than traditional factor models.
 
 The repository includes:
-- Core IPCA estimation algorithm
-- Monte Carlo simulations to validate theoretical results (Paper Section 7)
-- Empirical asset pricing application using real market data (Paper Section 8.2)
-- Out-of-sample evaluation framework
+- ALS-based IPCA estimation with convergence tracking
+- Monte Carlo simulation study validating the estimator
+- Empirical asset pricing application replicating Table 2 of the paper (1985-2015)
+- Automatic data downloading from Dropbox
 
 ## Project Structure
 
 ```
 IPCA_PaperReplication/
-├── src/                        # Core Python implementation
-│   ├── ipca.py                 # Main IPCA estimation class
-│   ├── simulate_ipca_data.py   # Monte Carlo data generation
-│   └── _deprecated/            # Additional scripts and reference code
-│       ├── original_ipca.py    # Alternative/reference implementation
-│       ├── reproduce_asset_pricing.py  # Standalone asset pricing analysis
-│       ├── full_oos_evaluation.py      # Extended evaluation framework
-│       └── diagnostic_summary.py       # Diagnostic tools
+├── src/
+│   ├── als_ipca.py             # ALS IPCA estimator
+│   ├── simulate_ipca_data.py   # Synthetic data generation
+│   ├── data_utils.py           # Data preparation and R² computation
+│   └── data_loader.py          # Auto-downloads data from Dropbox if missing
 │
-├── notebooks/                  # Jupyter notebooks (numbered for sequence)
-│   ├── 01_ipca_simulation_study.ipynb   # Monte Carlo simulations
-│   ├── 02_asset_pricing_replication.ipynb # Empirical asset pricing
-│   └── results/                # Output figures and JSON results
+├── notebooks/
+│   ├── 01_als_ipca_simulation_study.ipynb  # Monte Carlo simulation study
+│   └── 02_als_ipca_asset_pricing.ipynb     # Empirical asset pricing replication
 │
-├── data/                       # Essential data files
-│   ├── crsp_monthly_returns.csv         # Stock-level monthly returns
-│   ├── datashare.csv                    # Comprehensive market data
-│   └── _deprecated/            # Additional datasets
-│       ├── characteristics_data_feb2017.csv # Alternative characteristics
-│       ├── permno_list.csv              # CRSP permanent security IDs
-│       ├── stage1_osbap_0k_volume_2025.parquet
-│       └── macro/                       # Goyal-Welch macro predictors
+├── data/                       # Downloaded automatically on first run
+│   ├── crsp_monthly_returns.csv
+│   └── datashare.csv
 │
-├── docs/                       # Documentation
-│   ├── bib/                    # Original paper PDFs
-│   └── methodology/            # Simulation methodology guide
+├── docs/
+│   ├── bib/                    # Reference papers
+│   └── methodology/            # Methodology notes
 │
-├── requirements.txt            # Python dependencies
-├── .gitignore                 # Git ignore rules
-└── README.md                  # This file
+├── requirements.txt
+└── README.md
 ```
 
 ## IPCA Model
 
-The IPCA model is defined as:
+The IPCA model:
 
 ```
 x_{i,t} = β_{i,t}' f_t + ε_{i,t}
@@ -68,47 +58,55 @@ Where:
 - `c_{i,t}`: Observable firm characteristics
 - `Γ`: Characteristic-to-loading mapping matrix
 
+The ALS algorithm alternates between updating factors given `Γ` and updating `Γ` given factors until convergence.
+
 ## Usage
 
 ### Quick Start
 
-1. **Install dependencies:**
+1. **Clone and install dependencies:**
 ```bash
+git clone <repo-url>
+cd IPCA_PaperReplication
 pip install -r requirements.txt
 ```
 
-2. **Run the notebooks in order:**
+2. **Download the data** (required for asset pricing notebook):
 ```bash
-cd notebooks
-jupyter lab
+python -m src.data_loader
 ```
-   - Start with `01_ipca_simulation_study.ipynb` to understand IPCA methodology
-   - Then run `02_asset_pricing_replication.ipynb` for empirical results
+This downloads `datashare.csv` and `crsp_monthly_returns.csv` from Dropbox into `data/`.
 
-### Using the IPCA Class
+3. **Run the notebooks:**
+```bash
+jupyter lab notebooks/
+```
+   - `01_als_ipca_simulation_study.ipynb` — validates the ALS estimator on synthetic data
+   - `02_als_ipca_asset_pricing.ipynb` — replicates the empirical results
+
+> **Note:** The asset pricing notebook will also download the data automatically on first run if not present.
+
+### Using the ALS IPCA Estimator
 
 ```python
-import sys
-sys.path.append('src')
-from ipca import ipca
+from als_ipca import ALSIPCA
 
-# Initialize and fit model
-model = ipca(returns, characteristics)
-results = model.fit(K=4, OOS=True)
+model = ALSIPCA(num_assets=N, num_fact=K, num_charact=L, win_len=T)
+Gamma, objective_history = model.fit(data, max_iter=1000, tol=1e-6)
 
-# Access results
-gamma = results['Gamma']        # Characteristic loadings
-factors = results['Factor']     # Estimated factors
-r2 = results['xfits']['R2_Total']  # R-squared
+results = model.get_results()
+# results['Gamma']   — L x K loading matrix
+# results['factors'] — K x T factor estimates
+# results['Lambda']  — K x 1 mean factor (risk premia)
 ```
 
-## Data Requirements
+## Data
 
-The notebooks require only two data files (included):
-- `data/datashare.csv` - Main characteristics and identifiers
-- `data/crsp_monthly_returns.csv` - Monthly stock return data
+The asset pricing notebook requires two CSV files in `data/`. They are downloaded automatically from Dropbox on the first run via `src/data_loader.py`. You can also trigger the download manually:
 
-The simulation notebook generates its own synthetic data.
+```bash
+python -m src.data_loader
+```
 
 ## References
 
