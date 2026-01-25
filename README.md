@@ -1,6 +1,6 @@
 # IPCA Paper Replication
 
-Replication of the paper **"Instrumented Principal Component Analysis"** by Kelly, Pruitt, and Su (2019), published in the *Journal of Financial Economics*.
+Replication of the paper **["Characteristics are Covariances: A Unified Model of Risk and Return"](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2983919)** by Kelly, Pruitt, and Su (2019), published in the *Journal of Financial Economics*.
 
 ## Author
 
@@ -110,7 +110,7 @@ python -m src.data_loader
 
 ## References
 
-Kelly, B., Pruitt, S., & Su, Y. (2019). Characteristics are covariances: A unified model of risk and return. *Journal of Financial Economics*, 134(3), 501-524.
+Kelly, B., Pruitt, S., & Su, Y. (2019). [Characteristics are covariances: A unified model of risk and return](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2983919). *Journal of Financial Economics*, 134(3), 501-524.
 
 ## License
 
